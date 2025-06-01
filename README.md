@@ -67,7 +67,7 @@ Tahap persiapan data sangat penting untuk mengonversi data mentah ke format yang
 
 -----
 
-## Modeling
+## Modeling and Results
 
 Proyek ini membangun dan melatih dua model *collaborative filtering* untuk memprediksi *rating* film dan menyajikan *top-N recommendation*.
 
