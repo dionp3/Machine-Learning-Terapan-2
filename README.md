@@ -44,13 +44,38 @@ Dataset diunduh langsung dari situs GroupLens Research: [http://files.grouplens.
 
 **Uraian Variabel (Fitur):**
 
-  * `user_id`: ID unik pengguna.
-  * `item_id` / `movie_id`: ID unik film.
-  * `rating`: Nilai *rating* yang diberikan pengguna (1-5).
-  * `timestamp`: Waktu *rating* diberikan.
-  * `movie_title`: Judul film.
-  * `genre`: Kolom biner yang menunjukkan genre film (misalnya, `Action`, `Comedy`, `Drama`).
-  * `age`, `gender`, `occupation`, `zip_code`: Informasi demografi pengguna.
+* `user_id`: ID unik pengguna.
+* `item_id` / `movie_id`: ID unik film.
+* `rating`: Nilai *rating* yang diberikan pengguna (1-5).
+* `timestamp`: Waktu *rating* diberikan (dalam format Unix *timestamp*).
+* `movie_title`: Judul lengkap film.
+* `release_date`: Tanggal rilis film, menunjukkan kapan film tersebut pertama kali dirilis ke publik.
+* `video_release_date`: Tanggal rilis video film. Untuk dataset ini, kolom ini seringkali memiliki nilai yang sama dengan `release_date` atau tidak relevan, dan umumnya diabaikan dalam analisis.
+* `imdb_url`: Tautan (URL) langsung ke halaman film tersebut di Internet Movie Database (IMDb.com), menyediakan akses ke informasi film yang lebih detail.
+* **Genre**: Sebanyak 19 kolom biner (0 atau 1) yang menunjukkan kategori genre film. Nilai 1 berarti film termasuk dalam genre tersebut, 0 berarti tidak. Daftar lengkap genre adalah:
+    * `unknown`
+    * `Action`
+    * `Adventure`
+    * `Animation`
+    * `Children's`
+    * `Comedy`
+    * `Crime`
+    * `Documentary`
+    * `Drama`
+    * `Fantasy`
+    * `Film-Noir`
+    * `Horror`
+    * `Musical`
+    * `Mystery`
+    * `Romance`
+    * `Sci-Fi`
+    * `Thriller`
+    * `War`
+    * `Western`
+* `age`: Usia pengguna.
+* `gender`: Jenis kelamin pengguna (`M` untuk Pria, `F` untuk Wanita).
+* `occupation`: Pekerjaan pengguna.
+* `zip_code`: Kode pos tempat tinggal pengguna.
 
 **Insight dari EDA (Exploratory Data Analysis):**
 Analisis data awal menunjukkan bahwa dataset memiliki **sparsity yang tinggi** (sekitar 93.68%), yang umum dalam sistem rekomendasi karena tidak semua pengguna me-*rating* semua film. Distribusi *rating* cenderung positif, dengan *rating* 3 dan 4 paling sering diberikan. Film-film populer seperti 'Star Wars (1977)' mendapatkan jumlah *rating* tertinggi.
@@ -122,50 +147,68 @@ Kinerja kedua model dievaluasi menggunakan metrik standar untuk masalah prediksi
 ### Metrik Evaluasi
 
 1.  **Root Mean Squared Error (RMSE):**
-
-      * **Deskripsi**: Mengukur akar kuadrat dari rata-rata kuadrat perbedaan antara *rating* yang diprediksi dan *rating* aktual.
-      * **Karakteristik**: Metrik ini memberikan bobot lebih pada kesalahan prediksi yang besar (karena dikuadratkan), sehingga sensitif terhadap *outlier*.
-      * **Interpretasi**: Nilai **RMSE yang lebih rendah** menunjukkan kinerja model yang lebih baik.
-      * **Rumus:** $RMSE = \\sqrt{\\frac{1}{N} \\sum\_{i=1}^{N} (y\_i - \\hat{y}\_i)^2}$
+    * **Deskripsi**: Mengukur akar kuadrat dari rata-rata kuadrat perbedaan antara *rating* yang diprediksi dan *rating* aktual.
+    * **Karakteristik**: Metrik ini memberikan bobot lebih pada kesalahan prediksi yang besar (karena dikuadratkan), sehingga sensitif terhadap *outlier*.
+    * **Interpretasi**: Nilai **RMSE yang lebih rendah** menunjukkan kinerja model yang lebih baik.
+    * **Rumus:**
+        $$RMSE = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y}_i)^2}$$
 
 2.  **Mean Absolute Error (MAE):**
+    * **Deskripsi**: Mengukur rata-rata dari nilai absolut perbedaan antara *rating* yang diprediksi dan *rating* aktual.
+    * **Karakteristik**: Metrik ini memberikan bobot yang sama untuk semua kesalahan dan kurang sensitif terhadap *outlier* dibandingkan RMSE.
+    * **Interpretasi**: Nilai **MAE yang lebih rendah** juga menunjukkan kinerja model yang lebih baik.
+    * **Rumus:**
+        $$MAE = \frac{1}{N} \sum_{i=1}^{N} |y_i - \hat{y}_i|$$
 
-      * **Deskripsi**: Mengukur rata-rata dari nilai absolut perbedaan antara *rating* yang diprediksi dan *rating* aktual.
-      * **Karakteristik**: Metrik ini memberikan bobot yang sama untuk semua kesalahan dan kurang sensitif terhadap *outlier* dibandingkan RMSE.
-      * **Interpretasi**: Nilai **MAE yang lebih rendah** juga menunjukkan kinerja model yang lebih baik.
-      * **Rumus:** $MAE = \\frac{1}{N} \\sum\_{i=1}^{N} |y\_i - \\hat{y}\_i|$
-
------
+---
 
 ### Hasil Evaluasi
 
 Berdasarkan *output* dari proses *modeling*, metrik evaluasi untuk kedua model adalah sebagai berikut:
 
 #### Untuk User-Based Collaborative Filtering (KNN):
-
-  * **RMSE**: `1.0194`
-  * **MAE**: `0.8038`
+* **RMSE**: `1.0194`
+* **MAE**: `0.8038`
 
 #### Untuk Matrix Factorization (SVD):
+* **RMSE**: `0.9352`
+* **MAE**: `0.7375`
 
-  * **RMSE**: `0.9352`
-  * **MAE**: `0.7375`
-
------
+---
 
 ### Analisis Hasil
 
 Dari hasil di atas, model **Matrix Factorization (SVD)** menunjukkan kinerja yang **lebih unggul** dibandingkan dengan User-Based Collaborative Filtering (KNN).
 
-  * Nilai **RMSE SVD yang lebih rendah** (`0.9352` berbanding `1.0194`) mengindikasikan bahwa prediksi SVD memiliki deviasi kuadrat rata-rata yang lebih kecil dari *rating* aktual. Artinya, model SVD lebih akurat dalam memprediksi *rating*, terutama untuk kesalahan prediksi yang signifikan.
-  * Nilai **MAE SVD yang lebih rendah** (`0.7375` berbanding `0.8038`) juga menunjukkan bahwa SVD memiliki rata-rata kesalahan absolut yang lebih kecil. Ini berarti, secara umum, perbedaan antara *rating* prediksi dan *rating* aktual pada SVD lebih kecil.
+* Nilai **RMSE SVD yang lebih rendah** (`0.9352` berbanding `1.0194`) mengindikasikan bahwa prediksi SVD memiliki deviasi kuadrat rata-rata yang lebih kecil dari *rating* aktual. Artinya, model SVD lebih akurat dalam memprediksi *rating*, terutama untuk kesalahan prediksi yang signifikan.
+* Nilai **MAE SVD yang lebih rendah** (`0.7375` berbanding `0.8038`) juga menunjukkan bahwa SVD memiliki rata-rata kesalahan absolut yang lebih kecil. Ini berarti, secara umum, perbedaan antara *rating* prediksi dan *rating* aktual pada SVD lebih kecil.
 
 Perbedaan kinerja ini konsisten dengan literatur dan praktik di mana **Matrix Factorization** seringkali unggul dalam akurasi pada dataset **sparse** dibandingkan pendekatan berbasis kesamaan tradisional. Model SVD mampu menangkap **pola tersembunyi (latent factors)** dalam data *rating* yang lebih efektif dalam memprediksi *rating* yang belum diketahui. Selain itu, seperti yang terlihat dari contoh rekomendasi, SVD cenderung memberikan rekomendasi film-film yang lebih populer dan realistis, berbeda dengan KNN yang dalam kasus ini merekomendasikan film-film dengan *rating* estimasi sempurna namun kurang dikenal.
 
------
+### Dampak terhadap Business Understanding (Tambahan)
+
+Hasil evaluasi ini secara langsung dan signifikan berdampak pada tujuan bisnis yang telah ditetapkan:
+
+* **Menjawab Problem Statements:**
+    * **Kelebihan Pilihan:** Kedua model, khususnya SVD yang lebih akurat, efektif dalam memfilter ribuan film dan menyajikan daftar *top-N* yang relevan. Ini secara langsung mengurangi *information overload* dengan menyediakan pilihan terkurasi yang sesuai dengan preferensi pengguna.
+    * **Rendahnya Engagement:** Dengan memberikan rekomendasi film yang memiliki estimasi *rating* tinggi dan relevan (terutama SVD yang cenderung merekomendasikan film populer dengan akurasi lebih baik), model ini meningkatkan kemungkinan pengguna menemukan konten yang mereka sukai, sehingga mendorong *engagement* yang lebih tinggi dan waktu yang dihabiskan di platform.
+    * **Kesulitan Penemuan Film Baru:** Model SVD, dengan kemampuannya menangkap faktor laten, dapat merekomendasikan film yang mungkin tidak secara langsung terkait dengan genre yang sering ditonton pengguna, namun relevan dengan selera laten mereka. Ini secara efektif membantu pengguna menjelajahi dan menemukan film di luar kebiasaan tontonan mereka.
+
+* **Pencapaian Goals:**
+    * **Menyediakan Rekomendasi Film Personal:** Kedua algoritma berhasil memprediksi *rating* dan menghasilkan rekomendasi personal berdasarkan data historis pengguna. Model SVD menunjukkan akurasi yang lebih tinggi, yang berarti prediksinya lebih dapat diandalkan dan personal untuk setiap pengguna.
+    * **Meningkatkan Penemuan Konten:** Dengan menyediakan daftar film yang diprediksi akan disukai pengguna, sistem ini secara aktif memfasilitasi penemuan konten baru yang relevan, seperti yang ditunjukkan oleh daftar rekomendasi dari SVD yang berisi film-film berkualitas tinggi yang mungkin belum pernah ditemukan pengguna.
+    * **Meningkatkan Pengalaman Pengguna:** Akurasi prediksi yang lebih baik dari SVD berkontribusi pada pengalaman pengguna yang lebih memuaskan, karena rekomendasi yang diberikan lebih sering sesuai dengan preferensi mereka, meningkatkan kepuasan dan loyalitas terhadap platform.
+
+* **Dampak Solusi Statement:**
+    * **User-Based Collaborative Filtering (k-NN):** Meskipun berhasil melatih model dan menghasilkan rekomendasi, nilai RMSE dan MAE yang lebih tinggi menunjukkan bahwa prediksinya kurang akurat dibandingkan SVD. Selain itu, rekomendasi *top-N* cenderung menghasilkan film yang kurang populer atau mungkin merupakan artefak dari *sparsity* data, yang kurang optimal untuk tujuan bisnis meningkatkan *engagement* melalui penemuan konten populer.
+    * **Matrix Factorization (SVD):** Pendekatan ini terbukti lebih berdampak positif. Akurasi yang lebih tinggi (RMSE dan MAE lebih rendah) menunjukkan kemampuannya yang unggul dalam memprediksi *rating* yang akurat. Rekomendasi yang dihasilkan SVD juga terlihat lebih relevan secara komersial dan cenderung merekomendasikan film-film yang lebih diakui. Ini secara langsung mendukung tujuan bisnis untuk meningkatkan *engagement* dan penemuan konten berkualitas. Oleh karena itu, pendekatan SVD terbukti lebih berhasil dalam menjawab *problem statements* dan mencapai *goals* proyek ini.
+
+---
 
 ### Kesimpulan
 
-Secara keseluruhan, proyek ini berhasil membangun dan membandingkan dua model sistem rekomendasi **collaborative filtering**. Model **SVD** terbukti lebih unggul dalam hal **akurasi prediksi *rating***, menjadikannya pilihan yang lebih baik untuk sistem rekomendasi film ini.
+Secara keseluruhan, proyek ini berhasil membangun dan membandingkan dua model sistem rekomendasi **collaborative filtering**. Model **SVD** terbukti lebih unggul dalam hal **akurasi prediksi *rating***. Kinerja superior SVD ini menjadikannya pilihan yang lebih baik untuk sistem rekomendasi film ini, karena secara efektif **menjawab *problem statements*** terkait *information overload* dan *engagement*, serta **berhasil mencapai *goals*** untuk menyediakan rekomendasi personal yang meningkatkan penemuan konten dan pengalaman pengguna. Pendekatan **Matrix Factorization (SVD)** terbukti lebih berdampak positif dalam konteks bisnis yang direncanakan.
 
 -----
+
+
